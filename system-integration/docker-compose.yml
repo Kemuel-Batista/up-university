@@ -1,0 +1,16 @@
+services:
+  mysql:
+    image: bitnami/mysql:latest
+    container_name: bitnami-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=positivo
+      - MYSQL_DATABASE=system-integration
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=positivo
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/bitnami/mysql
+
+volumes:
+  mysql_data:
