@@ -1,0 +1,37 @@
+curl --request GET \
+  --url http://localhost:3000/product \
+  --header 'User-Agent: insomnia/11.0.0'
+
+curl --request GET \
+  --url http://localhost:3000/product/1 \
+  --header 'User-Agent: insomnia/11.0.0'
+
+curl --request POST \
+  --url http://localhost:3000/product \
+  --header 'Content-Type: application/json' \
+  --header 'User-Agent: insomnia/11.0.0' \
+  --data '{
+  "name": "Produto A",
+  "supplier": "Fornecedor X",
+  "supplierAddress": "Rua 123",
+  "quantity": 50,
+  "description": "Produto de teste"
+}
+'
+
+curl --request GET \
+  --url http://localhost:3000/product/1 \
+  --header 'User-Agent: insomnia/11.0.0'
+
+curl --request PUT \
+  --url http://localhost:3000/product/1 \
+  --header 'Content-Type: application/json' \
+  --header 'User-Agent: insomnia/11.0.0' \
+  --data '{
+  "name": "Produto A",
+  "supplier": "Fornecedor A",
+  "supplierAddress": "Rua 123",
+  "quantity": 50,
+  "description": "Produto de teste"
+}
+'
