@@ -1,0 +1,14 @@
+docker run -d \
+  --name my_db \
+  --network minha-rede \
+  -e MYSQL_ROOT_PASSWORD=senha123 \
+  -e MYSQL_DATABASE=produto \
+  -e MYSQL_USER=appuser1 \
+  -e MYSQL_PASSWORD=senha123 \
+  -p 3306:3306 \
+  -v mysql_data:/var/lib/mysql \
+  --restart unless-stopped \
+  mysql:8.0 \
+  --character-set-server=utf8mb4 \
+  --collation-server=utf8mb4_unicode_ci \
+  --default-authentication-plugin=mysql_native_password

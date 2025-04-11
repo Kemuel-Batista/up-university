@@ -1,0 +1,4 @@
+docker run -d \
+  --name my_db2 \
+  --network minha-rede \
+  container_so /bin/bash
