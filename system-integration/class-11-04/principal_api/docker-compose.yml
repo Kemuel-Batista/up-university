@@ -1,0 +1,11 @@
+
+services:
+  redis:
+    image: redis:latest
+    container_name: university-redis
+    command: redis-server --appendonly yes --requirepass university
+    ports:
+      - "6379:6379"
+    environment:
+      REDIS_PASSWORD: redis
+    mem_limit: 256mb 
