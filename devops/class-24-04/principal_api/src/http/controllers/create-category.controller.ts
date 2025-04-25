@@ -20,10 +20,13 @@ export class CreateCategoryUserController {
   async handle(@Body() body: CreateCategoryBodySchema) {
     const { name, description } = body
 
-    const response = await axios.post('http://nestjs-app-secondary/category', {
-      name,
-      description,
-    })
+    const response = await axios.post(
+      'http://nestjs-app-secondary:3001/category',
+      {
+        name,
+        description,
+      },
+    )
 
     return response.data
   }
