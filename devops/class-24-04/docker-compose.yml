@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  postgres:
+    container_name: wms-pg
+    image: bitnami/postgresql:latest
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRESQL_USERNAME=postgres
+      - POSTGRESQL_PASSWORD=wyms
+      - POSTGRESQL_DATABASE=wms
+    volumes:
+      - pgdata:/bitnami/postgresql
+    networks:
+      - backend
+
+  nestjs-app:
+    container_name: nestjs-app
+    build:
+      context: ./principal_api
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    depends_on:
+      - postgres
+    networks:
+      - backend
+
+  nestjs-app-secondary:
+    container_name: nestjs-app-secondary
+    build:
+      context: ./secondary_api
+      dockerfile: Dockerfile
+    ports:
+      - 3001:3001
+    depends_on:
+      - postgres
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  pgdata:
+    driver: local

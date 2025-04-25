@@ -1,0 +1,32 @@
+# 1) Crie a rede e o volume (só precisa uma vez):
+docker network create backend
+docker volume  create pgdata
+
+# 2) Construa as imagens das suas APIs:
+docker build -t nestjs-app-image           ./principal_api
+docker build -t nestjs-app-secondary-image ./secondary_api
+
+# 3) Rode o PostgreSQL:
+docker run -d \
+  --name wms-pg \
+  --network backend \
+  -p 5432:5432 \
+  -e POSTGRESQL_USERNAME=postgres \
+  -e POSTGRESQL_PASSWORD=wyms \
+  -e POSTGRESQL_DATABASE=wms \
+  -v pgdata:/bitnami/postgresql \
+  bitnami/postgresql:latest
+
+# 4) Rode a API principal (porta 3000):
+docker run -d \
+  --name nestjs-app \
+  --network backend \
+  -p 3000:3000 \
+  nestjs-app-image
+
+# 5) Rode a API secundária (porta 3001):
+docker run -d \
+  --name nestjs-app-secondary \
+  --network backend \
+  -p 3001:3001 \
+  nestjs-app-secondary-image

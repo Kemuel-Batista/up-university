@@ -1,0 +1,16 @@
+{
+  "extends": [
+    "@rocketseat/eslint-config/node"
+  ],
+  "plugins": [
+    "simple-import-sort"
+  ],
+  "rules": {
+    "no-useless-constructor":"off",
+    "no-new": "off",
+    "@typescript-eslint/adjacent-overload-signatures": "off",
+    "@typescript-eslint/ban-types": "off",
+    "simple-import-sort/imports": "error",
+    "@typescript-eslint/no-explicit-any": "off"
+  }
+}

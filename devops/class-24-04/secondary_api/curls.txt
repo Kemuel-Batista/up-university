@@ -1,0 +1,27 @@
+curl --location 'http://localhost:3000/category' \
+--header 'Content-Type: application/json' \
+--data '{
+  "name": "Tênis de Corrida",
+  "description": "Tênis leve para corridas longas"
+  
+}'
+
+curl --location 'http://localhost:3000/product' \
+--header 'Content-Type: application/json' \
+--data '{
+  "name": "Tênis Adidas Adizero SL2",
+  "description": "Tênis leve para corridas longas",
+  "price": 649.00,
+  "quantity": 15,
+  "categoryId": 1
+}
+'
+
+curl --location 'http://localhost:3000/category' \
+--header 'Content-Type: application/json' \
+--data '{
+  "name": "Camisa Dry Fit",
+  "description": "Ideal para treinos"
+  
+}'
+
