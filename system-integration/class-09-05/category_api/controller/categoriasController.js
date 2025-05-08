@@ -1,71 +1,103 @@
-const fs = require('fs');
-const path = './data/categorias.json';
+const { db, redis } = require('./db');
 
-function lerCategorias(){
-    if(!fs.existsSync(path)) return [];
-    return JSON.parse(fs.readFileSync(path));
-}
-
-function salvarCategorias(dados) {
-    fs.writeFileSync(path, JSON.stringify(dados, null, 2));
-}
-
-exports.criarCategoria = (req,res) => {
+exports.criarCategoria = async (req, res) => {
     const { nome } = req.body;
 
-    if(!nome || nome.trim() === ''){
-        return res.status(400).json({error:'Nome da categoria é obrigatorio'});
+    if (!nome || nome.trim() === '') {
+        return res.status(400).json({ error: 'Nome da categoria é obrigatório' });
     }
 
-    const categorias = lerCategorias();
-    const nova = {
-        id: Date.now(),
-        nome: nome.trim(),
-    };
+    try {
+        const result = await db.query(
+            'INSERT INTO category (name) VALUES ($1) RETURNING *',
+            [nome.trim()]
+        );
 
-    categorias.push(nova);
-    salvarCategorias(categorias);
+        // Invalida o cache
+        await redis.del(`category:${nome.trim()}`);
 
-    res.status(201).json(nova);
+        res.status(201).json(result.rows[0]);
+    } catch (err) {
+        res.status(500).json({ error: 'Erro ao criar categoria' });
+    }
 };
 
-exports.listarCategorias = (req, res) => {
-    const categorias = lerCategorias();
-    res.json(categorias);
+exports.listarCategorias = async (req, res) => {
+    try {
+        const result = await db.query('SELECT * FROM category ORDER BY id');
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: 'Erro ao listar categorias' });
+    }
 };
 
-exports.editarCategoria = (req,res) => {
+exports.editarCategoria = async (req, res) => {
     const { id } = req.params;
     const { nome } = req.body;
 
-    if (!nome || nome.trim() === ''){
-        return res.status(400).json({ error: 'Nome da categoria é obrigatorio'});
+    if (!nome || nome.trim() === '') {
+        return res.status(400).json({ error: 'Nome da categoria é obrigatório' });
     }
 
-    const categorias = lerCategorias();
-    const index = categorias.findIndex(cat => String(cat.id) === String(id));
+    try {
+        const result = await db.query(
+            'UPDATE category SET name = $1 WHERE id = $2 RETURNING *',
+            [nome.trim(), id]
+        );
 
-    if (index === -1) {
-        return res.status(404).json({ error: 'Categoria nao encontrada'});
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Categoria não encontrada' });
+        }
+
+        await redis.del(`category:${nome.trim()}`);
+
+        res.json(result.rows[0]);
+    } catch (err) {
+        res.status(500).json({ error: 'Erro ao editar categoria' });
     }
-
-categorias[index].nome = nome.trim();
-salvarCategorias(categorias);
-
-res.json(categorias[index]);
-
 };
 
-exports.deletarCategoria = (req, res) => {
+exports.deletarCategoria = async (req, res) => {
     const { id } = req.params;
-    const categorias = lerCategorias();
-    const novaLista = categorias.filter(cat => String(cat.id) !== String(id));
 
-    if(novaLista.length === categorias.length) {
-        return res.status(404).json({ error: 'Categoria não encontrada'});
+    try {
+        const result = await db.query(
+            'DELETE FROM category WHERE id = $1 RETURNING *',
+            [id]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Categoria não encontrada' });
+        }
+
+        await redis.del(`category:${result.rows[0].name}`);
+
+        res.status(204).send();
+    } catch (err) {
+        res.status(500).json({ error: 'Erro ao deletar categoria' });
     }
+};
 
-    salvarCategorias(novaLista);
-    res.status(204).send();
+exports.obterCategoriaPorNome = async (req, res) => {
+    const { name } = req.params;
 
+    try {
+        const cacheHit = await redis.get(`category:${name}`);
+
+        if (cacheHit) {
+            return res.json(JSON.parse(cacheHit));
+        }
+
+        const result = await db.query('SELECT * FROM category WHERE name = $1', [name]);
+
+        const category = result.rows[0];
+
+        if (!category) return res.status(404).json({ error: 'Categoria não encontrada' });
+
+        await redis.set(`category:${name}`, JSON.stringify(category));
+
+        res.json(category);
+    } catch (err) {
+        res.status(500).json({ error: 'Erro ao buscar categoria' });
+    }
 };
