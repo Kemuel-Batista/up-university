@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from .models import Lancamento
 from .extensions import db, cache
+import requests
 from datetime import datetime
 import json
 
@@ -9,26 +10,36 @@ bp = Blueprint('main', __name__)
 @bp.route('/lancamentos', methods=['POST'])
 def criar_lancamento():
     data = request.get_json()
-    
+
     # Validação básica
     required_fields = ['descricao', 'valor', 'categoria']
     if not all(field in data for field in required_fields):
         return jsonify({'error': 'Campos obrigatórios faltando'}), 400
-    
+
+    categoria_nome = data['categoria']
+
+    # Verifica se a categoria existe via requisição GET
+    try:
+        categoria_response = requests.get(f'http://localhost:3003/categoria/{categoria_nome}')
+        if categoria_response.status_code != 200:
+            return jsonify({'error': f'Categoria "{categoria_nome}" não existe'}), 404
+    except requests.RequestException as e:
+        return jsonify({'error': 'Erro ao verificar categoria: ' + str(e)}), 500
+
     try:
         lancamento = Lancamento(
             descricao=data['descricao'],
             valor=data['valor'],
             data=datetime.strptime(data.get('data', datetime.utcnow().isoformat()), '%Y-%m-%d').date(),
-            categoria=data['categoria']
+            categoria=categoria_nome
         )
-        
+
         db.session.add(lancamento)
         db.session.commit()
-        
+
         # Invalida cache
         cache.delete('all_lancamentos')
-        
+
         return jsonify(lancamento.to_dict()), 201
     except Exception as e:
         db.session.rollback()
