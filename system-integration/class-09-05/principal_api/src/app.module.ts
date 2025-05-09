@@ -3,11 +3,11 @@ import { ConfigModule } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
 import { AuthModule } from './auth/auth.module'
+import { CacheModule } from './cache/cache.module'
 import { envSchema } from './env/env'
 import { EnvModule } from './env/env.module'
 import { HttpModule } from './http/http.module'
 import { User } from './models/user'
-import { CacheModule } from './cache/cache.module'
 
 @Module({
   imports: [

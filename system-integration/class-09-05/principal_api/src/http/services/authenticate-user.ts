@@ -1,9 +1,8 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
-import { InjectRepository } from '@nestjs/typeorm'
 import { compare } from 'bcryptjs'
-import { User } from 'src/models/user'
-import { Repository } from 'typeorm'
+
+import { GetUserService } from './get-user'
 
 interface AuthenticateUserRequest {
   username: string
@@ -17,8 +16,7 @@ interface AuthenticateUserResponse {
 @Injectable()
 export class AuthenticateUserService {
   constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private getUser: GetUserService,
     private jwtService: JwtService,
   ) {}
 
@@ -26,11 +24,7 @@ export class AuthenticateUserService {
     username,
     password,
   }: AuthenticateUserRequest): Promise<AuthenticateUserResponse> {
-    const user = await this.usersRepository.findOne({
-      where: {
-        username,
-      },
-    })
+    const user = await this.getUser.findByUsername(username)
 
     if (!user) {
       throw new UnauthorizedException('Credenciais inválidas')
