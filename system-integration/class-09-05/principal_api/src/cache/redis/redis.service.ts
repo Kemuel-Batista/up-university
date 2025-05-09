@@ -1,5 +1,5 @@
-import { Injectable, OnModuleDestroy } from '@nestjs/common';
-import { Redis } from 'ioredis';
+import { Injectable, OnModuleDestroy } from '@nestjs/common'
+import { Redis } from 'ioredis'
 
 @Injectable()
 export class RedisService extends Redis implements OnModuleDestroy {
@@ -7,11 +7,11 @@ export class RedisService extends Redis implements OnModuleDestroy {
     super({
       host: process.env.REDIS_HOST,
       port: Number(process.env.REDIS_PORT) || 6379,
-      password: "university"
-    });
+      password: 'university',
+    })
   }
 
   onModuleDestroy() {
-    return this.disconnect();
+    return this.disconnect()
   }
 }
