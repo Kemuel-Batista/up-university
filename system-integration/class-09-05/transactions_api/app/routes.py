@@ -60,10 +60,23 @@ def listar_lancamentos():
     
     return jsonify(result)
 
-@bp.route('/lancamentos/<int:id>', methods=['GET'])
+@bp.route('/<int:id>', methods=['GET'])
 def obter_lancamento(id):
+    cache_key = f"lancamento:{id}"
+    # Tenta ler do cache
+    cached = redis_client.get(cache_key)
+    if cached:
+        # Se tiver, retorna direto
+        return jsonify(json.loads(cached))
+
+    # Se não tiver no cache, busca no banco
     lancamento = Lancamento.query.get_or_404(id)
-    return jsonify(lancamento.to_dict())
+    data = lancamento.to_dict()
+
+    # Armazena no cache por 5 minutos (300s)
+    redis_client.setex(cache_key, 300, json.dumps(data))
+
+    return jsonify(data)
 
 @bp.route('/lancamentos/<int:id>', methods=['DELETE'])
 def deletar_lancamento(id):
