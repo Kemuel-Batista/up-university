@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  grafana-university:
+    image: grafana/grafana
+    container_name: grafana-university
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    networks:
+      - university-network
+    depends_on:
+      - mysql-university
+
+  mysql-university:
+    image: bitnami/mysql:latest
+    container_name: mysql-university-grafana
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=admin
+      - MYSQL_DATABASE=grafana
+      - MYSQL_USER=grafana
+      - MYSQL_PASSWORD=grafana
+    volumes:
+      - mysql-data:/bitnami/mysql
+    networks:
+      - university-network
+
+volumes:
+  grafana-storage:
+  mysql-data:
+
+networks:
+  university-network:
+    driver: bridge
