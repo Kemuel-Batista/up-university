@@ -1,0 +1,60 @@
+services:
+  db:
+    container_name: ecommerce-mysql
+    image: bitnami/mysql:latest
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=university
+      - MYSQL_DATABASE=ecommerce
+    volumes:
+      - mysql_data:/bitnami/mysql/data
+    networks:
+      - ecommerce_network
+
+  redis:
+    container_name: ecommerce-cache
+    image: bitnami/redis:latest
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=university
+    volumes:
+      - redis_data:/bitnami/redis/data
+    networks:
+      - ecommerce_network
+
+  products:
+    build: ./products
+    ports:
+      - "3001:3001"
+    networks:
+      - ecommerce_network
+
+  orders:
+    build: ./orders
+    ports:
+      - "3002:3002"
+    depends_on:
+      - products
+      - redis
+      - db
+    networks:
+      - ecommerce_network
+
+  payments:
+    build: ./payments
+    ports:
+      - "3003:3003"
+    depends_on:
+      - orders
+    networks:
+      - ecommerce_network
+
+networks:
+  ecommerce_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  redis_data:
