@@ -1,0 +1,27 @@
+services:
+  rabbitmq:
+    container_name: prova-rabbitmq
+    image: bitnami/rabbitmq:latest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+      - RABBITMQ_MANAGEMENT_ALLOW_WEB_ACCESS=true
+    volumes:
+      - rabbitmq_data:/bitnami/rabbitmq/mnesia
+
+  redis:
+    container_name: prova-redis
+    image: bitnami/redis:latest
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=university
+    volumes:
+      - redis_data:/bitnami/redis/data
+
+volumes:
+  rabbitmq_data:
+  redis_data:
