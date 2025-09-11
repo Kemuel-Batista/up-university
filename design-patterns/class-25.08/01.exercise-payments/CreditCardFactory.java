@@ -1,5 +1,5 @@
 public class CreditCardFactory extends PaymentFactory {
-  private final String cardNumber;
+  private String cardNumber;
 
   public CreditCardFactory(String cardNumber) {
     this.cardNumber = cardNumber;
@@ -11,6 +11,6 @@ public class CreditCardFactory extends PaymentFactory {
       throw new IllegalArgumentException("Número de cartão inválido: deve conter exatamente 16 dígitos.");
     }
 
-    return new CreditCardPayment();
+    return new CreditCardPayment(this.cardNumber);
   }
 }
