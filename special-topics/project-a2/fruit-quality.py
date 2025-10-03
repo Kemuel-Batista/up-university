@@ -2,7 +2,6 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import plotly.express as px
 import seaborn as sns
 
 # Carregar dados para o dataframe
@@ -39,6 +38,12 @@ plt.title("Peso vs Qualidade da Fruta")
 plt.show()
 
 print("Apesar de a amplitude ser maior, a mediana dos pesos entre frutas boas e ruins não apresenta uma diferença significativa, pois os valores são bem próximos. Isso indica que, em termos medianos, o peso das frutas não varia muito entre as duas categorias. No entanto, as frutas boas apresentam uma amplitude maior, sugerindo que tendem a ter um peso relativamente mais elevado em comparação às frutas ruins.")
+
+# BoxPlot Quality x Sweetness
+plt.figure(figsize=(6,4))
+sns.boxplot(x='quality', y='sweetness', data=df_frutas, palette='Set2')
+plt.title("Qualidade vs Doçura")
+plt.show()
 
 # 5. Relatório simples no console
 print("\n--- Insights ---")
